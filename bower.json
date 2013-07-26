@@ -1,0 +1,16 @@
+{
+  "name": "backbone.oauth",
+  "version": "0.1.0",
+  "main": "backbone.oauth.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "backbone": "~1.0.0",
+    "jquery.cookie": "~1.3.1"
+  }
+}
