@@ -15,6 +15,18 @@
 
     checkLogin: function() {
       var accessToken, token, _this = this;
+      // parse the access_token within hash
+      if (token = this.extractToken(document.location.hash)) {
+        $.cookie('access_token', token);
+        window.me.fetch({
+          success: function() {
+            setTimeout(function() {
+              _this.index();
+            }, 0);
+          }
+        });
+        return;
+      }
       // check if access_token exists
       if (accessToken = $.cookie('access_token')) {
         window.me.fetch()
@@ -26,17 +38,6 @@
           _this.logout();
         });
         return;
-      }
-      // parse the access_token within hash
-      if (token = this.extractToken(document.location.hash)) {
-        $.cookie('access_token', token);
-        window.me.fetch({
-          success: function() {
-            setTimeout(function() {
-              _this.index();
-            }, 0);
-          }
-        });
       } else {
         return document.location.replace(("" + this.oauth.baseUrl + "/oauth/authorize?") + $.param({
           client_id: this.oauth.clientId,
@@ -47,7 +48,7 @@
 
     extractToken: function(hash) {
       var match;
-      match = hash.match(/access_token=(.*)&/);
+      match = hash.replace(/&.*$/, '').match(/access_token=(.*)$/);
       return !!match && match[1];
     },
 
