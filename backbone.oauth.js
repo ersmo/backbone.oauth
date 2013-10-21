@@ -23,27 +23,26 @@
             setTimeout(function() {
               _this.index();
             }, 0);
+          },
+          error: function() {
+            _this.logout();
           }
         });
         return;
       }
       // check if access_token exists
       if (accessToken = $.cookie('access_token')) {
-        window.me.fetch()
+        window.me.fetch();
         $.get("" + this.oauth.baseUrl + "/oauth/refresh_token?access_token=" + accessToken)
           .success(function(data) {
-          return $.cookie('access_token', data.access_token);
-        })
-        .error(function() {
-          _this.logout();
-        });
+            $.cookie('access_token', data.access_token);
+          })
+          .error(function() {
+            _this.logout();
+          });
         return;
-      } else {
-        return document.location.replace(("" + this.oauth.baseUrl + "/oauth/authorize?") + $.param({
-          client_id: this.oauth.clientId,
-          redirect_uri: document.location.protocol + "//" + document.location.host
-        }));
       }
+      _this.logout();
     },
 
     extractToken: function(hash) {
