@@ -10,7 +10,9 @@
       this.route(/access_token=*/, 'checkLogin');
       this.route('logout', 'logout');
       window.me = new Me;
-      window.me.url = "" + this.oauth.baseUrl + '/account/me';
+      window.me.url = this.oauth.meUrl || this.oauth.baseUrl + '/me';
+      this.oauth.refreshTokenUrl = this.oauth.refreshTokenUrl || this.oauth.baseUrl + "/refresh_token";
+      this.oauth.loginUrl = this.oauth.loginUrl || this.oauth.baseUrl + "/logout";
     },
 
     checkLogin: function() {
@@ -32,14 +34,17 @@
       }
       // check if access_token exists
       if (accessToken = $.cookie('access_token')) {
-        window.me.fetch();
-        $.get("" + this.oauth.baseUrl + "/oauth/refresh_token?access_token=" + accessToken)
-          .success(function(data) {
-            $.cookie('access_token', data.access_token);
-          })
-          .error(function() {
+        window.me.fetch({
+          error: function() {
             _this.logout();
-          });
+          }
+        });
+        $.ajax({
+          url: this.oauth.refreshTokenUrl + "?access_token=" + accessToken,
+          success: function(data) {
+            $.cookie('access_token', data.access_token);
+          }
+        });
         return;
       }
       _this.logout();
@@ -53,7 +58,7 @@
 
     logout: function() {
       $.removeCookie('access_token');
-      return document.location.replace(("" + this.oauth.baseUrl + "/oauth/logout?") + $.param({
+      return document.location.replace(this.oauth.loginUrl + "?" + $.param({
         client_id: this.oauth.clientId,
         redirect_uri: document.location.protocol + "//" + document.location.host
       }));
@@ -137,7 +142,9 @@
    * Me model
    */
   var Me = Backbone.Model.extend({
+
     sync: Backbone.accessTokenSync,
+
     defaults: {
       username: null,
       email: null,
@@ -145,6 +152,7 @@
       group_name: null,
       permissions: []
     }
+
   });
 
 })();
